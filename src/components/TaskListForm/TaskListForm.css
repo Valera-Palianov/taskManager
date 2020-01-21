@@ -1,0 +1,28 @@
+.task-list-form__inputs-wrap {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	grid-column-gap: 15px;
+	margin-bottom: 15px;
+}
+
+.task-list-form__text {
+	width: 100%;
+	height: 80px;
+	resize: none;
+	box-sizing: border-box;
+	margin-bottom: 10px;
+}
+
+.task-list-form__submit-wrap {
+	display: flex;
+	align-items: center;
+}
+
+.task-list-form__status {
+	margin-left: 15px;
+	font-size: 14px;
+}
+
+.task-list-form {
+	position: relative;
+}

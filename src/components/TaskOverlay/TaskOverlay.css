@@ -1,0 +1,14 @@
+.task-overlay {
+	position: absolute;
+	width: 100%;
+	height: 999px;
+	background: rgba(255, 255, 255, 0.5);
+	text-align: center;
+	z-index: 5
+}
+
+.task-overlay__icon {
+	font-size: 48px;
+	color: #0D47A1;
+	margin-top: 70px;
+}

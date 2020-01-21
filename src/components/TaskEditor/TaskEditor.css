@@ -1,0 +1,13 @@
+.task-editor__text {
+	width: 100%;
+	box-sizing: border-box;
+	resize: none;
+}
+
+.task-editor .task__status {
+	cursor: pointer;
+}
+
+.task-editor .task__buttons-holder {
+	opacity: 100;
+}

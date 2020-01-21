@@ -1,0 +1,30 @@
+.pagination {
+	margin: 15px auto;
+}
+
+.pagination__button {
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	font-size: 16px;
+	padding: 4px;
+	height: 26px;
+	width: 26px;
+	display: inline-block;
+	transition: 0.2s;
+	border-radius: 3px;
+	margin-right: 4px;
+}
+
+.pagination__button:hover {
+	background: #C2C2C4;
+}
+
+.pagination__button:focus {
+	outline: none;
+}
+
+.pagination__button:disabled {
+	background: #0D47A1;
+	color: white;
+}

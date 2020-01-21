@@ -1,0 +1,25 @@
+.sort-switcher {
+	display: flex;
+	justify-content: space-between;
+}
+
+.sort-switcher__button {
+	border: none;
+	background: none;
+	transition: 0.1s;
+	cursor: pointer;
+	padding: 15px;
+}
+
+.sort-switcher__button:focus {
+	outline: none;
+}
+
+.sort-switcher__button:not(.sort-switcher__field_active):hover {
+	background: #F0F1F3;
+}
+
+.sort-switcher__field_active {
+	background: #0D47A1;
+	color: white;
+}

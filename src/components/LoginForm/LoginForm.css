@@ -1,0 +1,15 @@
+.login-form__input {
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.login-form__submit-wrap {
+	display: flex;
+	align-items: center;
+}
+
+.login-form__status {
+	margin-left: 10px;
+	font-size: 14px;
+}

@@ -1,0 +1,68 @@
+.task {
+	border-left: 5px solid #087F23;
+	position: relative;
+}
+
+.task__buttons-holder {
+	position: absolute;
+	top: 15px;
+	right: 15px;
+	transition: 0.3s;
+	opacity: 0;
+}
+
+.task__button{
+	cursor: pointer;
+	color: #A1A1A1;
+	font-size: 22px;
+	margin-left: 15px;
+}
+
+.task__button:hover {
+	color: #717171;
+}
+
+.task:hover .task__buttons-holder {
+	opacity: 100;
+}
+
+.task_inprogress {
+	border-left-color: #0D47A1;
+}
+
+.task__username {
+	font-size: 20px;
+	margin-bottom: 4px;
+	color: black;
+}
+
+.task__email {
+	font-size: 14px;
+	color: #979797
+}
+
+.task__text {
+	margin-bottom: 15px;
+	font-size: 18px;
+}
+
+.task__status-wrap {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.task__status {
+	font-size: 20px;
+	color: #087F23;
+}
+
+.task_inprogress .task__status {
+	color: #0D47A1
+}
+
+.task__creator {
+	border-bottom: 1px solid #D3D3D3;
+	padding-bottom: 15px;
+	margin-bottom: 15px;
+}
