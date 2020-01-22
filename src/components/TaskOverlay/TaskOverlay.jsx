@@ -6,7 +6,10 @@ const TaskOverlay = (props) => {
 	return(
 		<div className='task-overlay'>
 			<div className='task-overlay__icon'>
-				<FontAwesomeIcon icon="atom" spin={true}/>
+				{(props.status == 'done') ? <FontAwesomeIcon icon="check"/> : <FontAwesomeIcon icon="atom" spin={true}/>}
+			</div>
+			<div className='task-overlay__message'>
+				{(props.message != undefined) ? props.message : ""}
 			</div>
 		</div>
 	)

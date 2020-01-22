@@ -2,7 +2,8 @@ import {
 	ADD_TASK_FORM_CHANGE,
 	ADD_TASK_FAILURE,
 	ADD_TASK_SUCCESS,
-	ADD_TASK_REQUEST
+	ADD_TASK_REQUEST,
+	ADD_TASK_SUCCESS_COUNTDOWN
 } from '../actions/TaskListFormActions'
 
 const initialState = {
@@ -37,7 +38,8 @@ const taskListFormReducer = (state = initialState, action) => {
 				flags: {
 					...state.flags,
 					isMessageSending: false,
-					sendingError: false
+					sendingError: false,
+					newMessageSended: true
 				},
 				form: {
 					username: "",
@@ -55,6 +57,15 @@ const taskListFormReducer = (state = initialState, action) => {
 					sendingError: true,
 					sendingErrorMessage: action.payload
 				}
+			}
+		}
+		case ADD_TASK_SUCCESS_COUNTDOWN: {
+			return {
+				...state,
+				flags: {
+					...state.flags,
+					newMessageSended: false
+				},
 			}
 		}
 		case ADD_TASK_FORM_CHANGE:

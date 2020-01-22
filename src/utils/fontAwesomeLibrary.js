@@ -8,7 +8,8 @@ import {
 	faDizzy,
 	faPen,
 	faBan,
-	faSave
+	faSave,
+	faCheck
 } from '@fortawesome/free-solid-svg-icons'
 
 import {
@@ -27,5 +28,6 @@ library.add(
 	faCheckCircle,
 	faPen,
 	faSave,
-	faBan
+	faBan,
+	faCheck
 )

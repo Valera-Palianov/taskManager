@@ -2,6 +2,8 @@ export const ADD_TASK_REQUEST = 'ADD_TASK_REQUEST'
 export const ADD_TASK_SUCCESS = 'ADD_TASK_SUCCESS'
 export const ADD_TASK_FAILURE = 'ADD_TASK_FAILURE'
 
+export const ADD_TASK_SUCCESS_COUNTDOWN = 'ADD_TASK_SUCCESS_COUNTDOWN'
+
 export const ADD_TASK_FORM_CHANGE = 'ADD_TASK_FORM_CHANGE'
 
 export const REMOTE_UPDATE = 'REMOTE_UPDATE'
@@ -38,5 +40,11 @@ export const addTaskFormChange = (name, value) => {
 export const remoteUpdate = () => {
 	return {
 		type: REMOTE_UPDATE
+	}
+}
+
+export const addTaskSuccessCountdown = () => {
+	return {
+		type: ADD_TASK_SUCCESS_COUNTDOWN
 	}
 }

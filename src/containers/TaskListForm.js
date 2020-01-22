@@ -9,6 +9,7 @@ import {
 	addTaskRequest,
 	addTaskSuccess,
 	addTaskFailure,
+	addTaskSuccessCountdown,
 	remoteUpdate
 } from '../actions/TaskListFormActions'
 
@@ -43,6 +44,9 @@ class TaskListFormContainer extends React.Component {
 				if(response.data.status == 'ok') {
 					that.props.addTaskSuccess()
 					that.props.remoteUpdate()
+					setTimeout(()=> {
+						that.props.addTaskSuccessCountdown()
+					}, 1500)
 				} else {
 					that.props.addTaskFailure(response.data.message)
 				}
@@ -83,6 +87,7 @@ const mapDispatchToProps = (dispatch) => {
 		addTaskRequest: () => dispatch(addTaskRequest()),
 		addTaskSuccess: () => dispatch(addTaskSuccess()),
 		addTaskFailure: (errorMessage) => dispatch(addTaskFailure(errorMessage)),
+		addTaskSuccessCountdown: () => dispatch(addTaskSuccessCountdown())
 	}
 }
 

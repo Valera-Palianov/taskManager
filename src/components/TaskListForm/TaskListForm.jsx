@@ -7,9 +7,15 @@ import TaskOverlay from '../TaskOverlay/TaskOverlay'
 const TaskListForm = (props) => {
 
 	const {username, email, text} = props.form
-	const {sendingError, sendingErrorMessage, isMessageSending} = props.flags
+	const {sendingError, sendingErrorMessage, isMessageSending, newMessageSended} = props.flags
 
-	const overlay = (isMessageSending) ? <TaskOverlay /> : ""
+	let overlay
+	if(isMessageSending || newMessageSended) {
+
+		const status = (isMessageSending) ? "process" : "done"
+		const message = (isMessageSending) ? "Отправка..." : "Отправлено!"
+		overlay = <TaskOverlay status={status} message={message}/>
+	}
 
 	let status = ""
 	if(sendingError) {
