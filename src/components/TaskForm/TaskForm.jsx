@@ -59,6 +59,7 @@ const TaskForm = (props) => {
 		}
 		if(sendingError) {
 			status = "error"
+			message = sendingErrorMessage
 			console.log(message)
 			message = "Неверные данные. Подробности в консоли"
 		}

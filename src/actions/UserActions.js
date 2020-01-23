@@ -4,7 +4,7 @@ export const LOGIN_FAILURE = "LOGIN_FAILURE"
 
 export const LOGOUT = "LOGOUT"
 
-export const LOGIN_FORM_CHANGED = "LOGIN_FORM_CHANGED"
+export const LOGIN_FORM_CHANGE = "LOGIN_FORM_CHANGE"
 
 export const loginRequest = () => {
 	return {
@@ -23,19 +23,23 @@ export const loginSuccess = (token, isAdmin, username) => {
 	}
 }
 
-export const loginFailure = (errorMessage) => {
+export const loginFailure = (errorType, errorMessage) => {
 	return {
 		type: LOGIN_FAILURE,
-		payload: errorMessage
+		payload: {
+			errorType: errorType,
+			errorMessage: errorMessage
+		}
 	}
 }
 
-export const loginFormChanged = (name, value) => {
+export const loginFormChange = (name, value, validationFail) => {
 	return {
-		type: LOGIN_FORM_CHANGED,
+		type: LOGIN_FORM_CHANGE,
 		payload: {
 			value: value,
-			name: name
+			name: name,
+			validationFail: validationFail
 		}
 	}
 }

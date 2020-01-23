@@ -2,23 +2,48 @@ import {
 	LOGIN_REQUEST,
 	LOGIN_SUCCESS,
 	LOGIN_FAILURE,
-	LOGIN_FORM_CHANGED,
+	LOGIN_FORM_CHANGE,
 	LOGOUT
 } from "../actions/UserActions"
 
 let initialState = {
-	isLogin: false,
-	isAdmin: false,
-	token: null,
-	username: null,
+	general: {
+		isLogin: false,
+		isAdmin: false,
+		token: null,
+		username: null,
+	},
 	form: {
-		login: "",
-		password: ""
+		values: {
+			login: "",
+			password: ""
+		},
+		placeholders: {
+			login: "Логин",
+			password: "Пароль"
+		},
+		validators: {
+			login: {
+				validationFail: false,
+				regEx: /^([a-zа-яё]+|\d+)$/i,
+				message: "Поле может содержать лишь буквы и не должно быть пустым"
+			},
+			password: {
+				validationFail: false,
+				regEx: /^([a-zа-яё0-9]+|\d+)$/i,
+				message: "Поле может содержать лишь буквы и цифры и не должно быть пустым"
+			}
+		}
 	},
 	flags: {
-		loginInProcess: false,
-		errorLogin: false,
-		errorLoginMessage: ""
+		loginProcess: false,
+		loginError: false,
+		networkError: false,
+	},
+	messages: {
+		loginProcess: "Вход...",
+		loginError: null,
+		networkError: "Ошибка сети"
 	}
 }
 
@@ -29,65 +54,88 @@ const userReducer = (state = initialState, action) => {
 				...state,
 				flags: {
 					...state.flags,
-					loginInProcess: true,
-					errorLogin: false
+					loginProcess: true,
 				}
 			}
 		case LOGIN_SUCCESS: 
 			return {
 				...state,
-				isLogin: true,
-				token: action.payload.token,
-				isAdmin: action.payload.isAdmin,
-				username: action.payload.username,
+				general: {
+					isLogin: true,
+					token: action.payload.token,
+					isAdmin: action.payload.isAdmin,
+					username: action.payload.username,
+				},
 				flags: {
 					...state.flags,
-					loginInProcess: false,
-					errorLogin: false
+					loginProcess: false,
+					loginError: false,
+					networkError: false,
 				},
 				form: {
-					login: "",
-					password: "",
+					...state.form,
+					values: {
+						login: "",
+						password: "",
+					},
 				},
 			}
 		case LOGIN_FAILURE: 
-
-			return {
+			let loginState = {
 				...state,
 				flags: {
 					...state.flags,
-					loginInProcess: false,
-					errorLogin: true,
-					errorLoginMessage: action.payload
-				},
+					loginProcess: false,
+				}
 			}
-		case LOGIN_FORM_CHANGED: 
-			let newState = {
+			switch(action.payload.errorType) {
+				case "server":
+					loginState.flags.loginError = true
+					loginState.messages.loginError = action.payload.errorMessage
+					break
+				case "network":
+					loginState.flags.networkError = true
+			}
+			return loginState
+		case LOGIN_FORM_CHANGE:
+			let loginFormChangeState = {
 				...state,
 				form: {
-					...state.form
-				},
-				flags: {
-					...state.flags,
-					errorLogin: false
+					...state.form,
+					values: {
+						...state.form.values
+					},
+					validators: {
+						login: {
+							...state.form.validators.login
+						},
+						password: {
+							...state.form.validators.password
+						}
+					}
 				}
 			}
 			switch(action.payload.name) {
 				case "login":
-					newState.form.login = action.payload.value
+					loginFormChangeState.form.values.login = action.payload.value
+					loginFormChangeState.form.validators.login.validationFail = action.payload.validationFail
 					break
 				case "password":
-					newState.form.password = action.payload.value
+					loginFormChangeState.form.values.password = action.payload.value
+					loginFormChangeState.form.validators.password.validationFail = action.payload.validationFail
 					break
 			}
-			return newState
+			return loginFormChangeState
 		case LOGOUT: 
 			return {
 				...state,
-				isLogin: false,
-				token: null,
-				isAdmin: false,
-				username: null,
+				general: {
+					...state.general,
+					isLogin: false,
+					isAdmin: false,
+					token: null,
+					username: null,
+				}
 			}
 		default:
 			return state;

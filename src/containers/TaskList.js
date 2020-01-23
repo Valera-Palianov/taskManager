@@ -6,18 +6,18 @@ import Cookies from 'js-cookie'
 import TaskList from '../components/TaskList/TaskList'
 import {ajaxData} from "../utils/ajaxData"
 import {
+	editableTaskSaveFailure,
+	editableTaskSaveRequest,
+	editableTaskSaveSuccess,
 	updateTaskListRequest,
 	updateTaskListSuccess,
 	updateTaskListFailure,
-	sortDirectionChange,
-	sortFieldChange,
-	pageNumberChange,
-	taskSelectedToEdit,
-	editableTaskChange,
 	taskUnselectedToEdit,
-	editableTaskSaveRequest,
-	editableTaskSaveSuccess,
-	editableTaskSaveFailure
+	sortDirectionChange,
+	editableTaskChange,
+	taskSelectedToEdit,
+	pageNumberChange,
+	sortFieldChange,
 } from '../actions/TaskListActions'
 
 class TaskListContainer extends React.Component {
@@ -129,25 +129,25 @@ const mapStateToProps = (state) => {
 		list: state.taskList.list,
 		flags: state.taskList.flags,
 		options: state.taskList.options,
-		editorEnabled: state.user.isAdmin,
 		editableTask: state.taskList.editableTask,
+		editorEnabled: state.user.general.isAdmin,
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-		updateTaskListRequest: () => dispatch(updateTaskListRequest()),
 		updateTaskListSuccess: (list, totalTaskCount) => dispatch(updateTaskListSuccess(list, totalTaskCount)),
+		editableTaskSaveFailure: (errorMessage) => dispatch(editableTaskSaveFailure(errorMessage)),
 		updateTaskListFailure: (errorMessage) => dispatch(updateTaskListFailure(errorMessage)),
+		sortDirectionChange: (sortDirection) => dispatch(sortDirectionChange(sortDirection)),
+		editableTaskChange: (name, value) => dispatch(editableTaskChange(name, value)),
 		pageNumberChange: (pageNumber) => dispatch(pageNumberChange(pageNumber)),
 		sortFieldChange: (sortField) => dispatch(sortFieldChange(sortField)),
-		sortDirectionChange: (sortDirection) => dispatch(sortDirectionChange(sortDirection)),
-		taskSelectedToEdit: (id) => dispatch(taskSelectedToEdit(id)),
-		editableTaskChange: (name, value) => dispatch(editableTaskChange(name, value)),
-		taskUnselectedToEdit: () => dispatch(taskUnselectedToEdit()),
 		editableTaskSaveRequest: () => dispatch(editableTaskSaveRequest()),
 		editableTaskSaveSuccess: () => dispatch(editableTaskSaveSuccess()),
-		editableTaskSaveFailure: (errorMessage) => dispatch(editableTaskSaveFailure(errorMessage))
+		updateTaskListRequest: () => dispatch(updateTaskListRequest()),
+		taskSelectedToEdit: (id) => dispatch(taskSelectedToEdit(id)),
+		taskUnselectedToEdit: () => dispatch(taskUnselectedToEdit()),
 	}
 }
 

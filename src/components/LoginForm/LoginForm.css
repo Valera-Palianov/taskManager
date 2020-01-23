@@ -1,7 +1,10 @@
 .login-form__input {
-	margin-bottom: 10px;
 	width: 100%;
 	box-sizing: border-box;
+}
+
+.login-form__input-wrap {
+	margin-bottom: 10px;
 }
 
 .login-form__submit-wrap {
@@ -11,5 +14,5 @@
 
 .login-form__status {
 	margin-left: 10px;
-	font-size: 14px;
+	font-size: 12px;
 }

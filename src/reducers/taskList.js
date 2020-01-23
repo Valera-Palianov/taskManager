@@ -55,10 +55,10 @@ const initialState = {
 		totalTaskCount: 0,
 	},
 	flags: {
+		updatingErrorMessage: null,
 		listNeedToUpdate: false,
 		isListUpdating: false,
 		updatingError: false,
-		updatingErrorMessage: null
 	},
 	editableTask: {
 		id: null,

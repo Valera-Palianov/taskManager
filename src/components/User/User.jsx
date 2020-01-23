@@ -8,14 +8,15 @@ import './User.css'
 const User = (props) => {
 
 	let content
-	if(props.isLogin) {
-		content = <UserInfo username={props.username} logout={props.logout}/>
+	if(props.general.isLogin) {
+		content = <UserInfo username={props.general.username} logout={props.logout}/>
 	} else {
 		content = <LoginForm
 					loginRequest={props.loginRequest}
-					loginFormChanged={props.loginFormChanged}
+					loginFormChange={props.loginFormChange}
 					flags={props.flags}
-					form={props.form}/>
+					form={props.form}
+					messages={props.messages}/>
 	}
 
 	return (

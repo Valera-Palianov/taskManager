@@ -6,7 +6,7 @@ import {connect} from 'react-redux'
 import User from '../components/User/User'
 import {ajaxData} from '../utils/ajaxData'
 import {
-	loginFormChanged,
+	loginFormChange,
 	loginRequest,
 	loginSuccess,
 	loginFailure,
@@ -19,7 +19,7 @@ class UserContainer extends React.Component {
 
 		this.logout = this.logout.bind(this)
 		this.loginRequest = this.loginRequest.bind(this)
-		this.loginFormChanged = this.loginFormChanged.bind(this)
+		this.loginFormChange = this.loginFormChange.bind(this)
 	}
 
 	componentDidMount(){
@@ -29,21 +29,32 @@ class UserContainer extends React.Component {
 		}
 	}
 
-	loginFormChanged (e) {
+	loginFormChange (e) {
 		const value = e.target.value
 		const name = e.target.name
-		this.props.loginFormChanged(name, value)
+
+		let validationFail = false
+		if(name == 'login') {
+			const loginRe = this.props.form.validators.login.regEx
+			validationFail = !loginRe.test(value)
+		}
+		if(name == 'password') {
+			const passwordRe = this.props.form.validators.password.regEx
+			validationFail = !passwordRe.test(value)
+		}
+
+		this.props.loginFormChange(name, value, validationFail)
 	}
 
 	loginRequest(e) {
 
 		e.preventDefault() 
 
-		const formData = new FormData()
-        formData.append("username", this.props.form.login)
-        formData.append("password", this.props.form.password)
-
 		this.props.loginRequest()
+
+		const formData = new FormData()
+        formData.append("username", this.props.form.values.login)
+        formData.append("password", this.props.form.values.password)
 
 		const requestBase = ajaxData.baseURL
 		const requestTarget = ajaxData.toLogIn
@@ -66,11 +77,11 @@ class UserContainer extends React.Component {
 
 					that.props.loginSuccess(token, isAdmin, username)
 				} else {
-					that.props.loginFailure(response.data.message)
+					that.props.loginFailure('server', response.data.message.password)
 				}
 			})
 			.catch(function (error) {
-				that.props.loginFailure(error)
+				that.props.loginFailure('network', error)
 			})
 	}
 
@@ -83,11 +94,11 @@ class UserContainer extends React.Component {
 
 	render() {
 		return <User
-			isLogin={this.props.isLogin}
-			username={this.props.username}
+			general={this.props.general}
 			form={this.props.form}
 			flags={this.props.flags}
-			loginFormChanged={this.loginFormChanged}
+			messages={this.props.messages}
+			loginFormChange={this.loginFormChange}
 			loginRequest={this.loginRequest}
 			logout={this.logout}/>
 	}
@@ -99,10 +110,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-		loginFormChanged: (name, value) => dispatch(loginFormChanged(name, value)),
-		loginRequest: () => dispatch(loginRequest()),
+		loginFormChange: (name, value, validationFail) => dispatch(loginFormChange(name, value, validationFail)),
 		loginSuccess: (token, isAdmin, username) => dispatch(loginSuccess(token, isAdmin, username)),
-		loginFailure: (errorMessage) => dispatch(loginFailure(errorMessage)),
+		loginFailure: (errorType, errorMessage) => dispatch(loginFailure(errorType, errorMessage)),
+		loginRequest: () => dispatch(loginRequest()),
 		logout: () => dispatch(logout()),
 	}
 }

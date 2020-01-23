@@ -22,7 +22,7 @@ const initialState = {
 			username: {
 				validationFail: false,
 				regEx: /^([a-zа-яё]+|\d+)$/i,
-				message: "Поле может содержать лишь русские/латинские буквы, без пробелов"
+				message: "Поле может содержать лишь буквы и не должно быть пустым"
 			},
 			email: {
 				validationFail: false,

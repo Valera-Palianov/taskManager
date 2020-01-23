@@ -3,39 +3,77 @@ import React from 'react'
 import './LoginForm.css'
 
 const LoginForm = (props) => {
-	const {loginInProcess, errorLogin, errorLoginMessage} = props.flags
+
+	const {login, password} = props.form.values
+	const {loginProcess, loginError, networkError} = props.flags
+
+	const loginValidationFail = props.form.validators.login.validationFail
+	const passwordValidationFail = props.form.validators.password.validationFail
+
+	const loginValidationMessage = props.form.validators.login.message
+	const passwordValidationMessage = props.form.validators.password.message
+
+	let loginClasses = 'login-from__username login-form__input'
+	let passwordClasses = 'login-from__password login-form__input'
+
+	loginClasses += (loginValidationFail) ? " validation-error" : ""
+	passwordClasses += (passwordValidationFail) ? " validation-error" : ""
+
+	const {
+		login: loginPH,
+		password: passwordPH,
+	} = props.form.placeholders
+
+	const {
+		loginProcess: loginProcessMessage,
+		networkError: networkErrorMessage,
+		loginError: loginErrorMessage
+	} = props.messages
+
+	let validatorError = false
+	if(
+		loginValidationFail ||
+		passwordValidationFail ||
+		props.form.values.login == '' ||
+		props.form.values.password == '') {
+		validatorError = true
+	}
 
 	let status
-	if(loginInProcess) {
-		status = "Отправка..."
+	if(networkError) {
+		status = networkErrorMessage
 	}
-	if(errorLogin) {
-		status = "Ошибка отправки, подробности в консоли"
-		console.log(errorLoginMessage)
+	if(loginError) {
+		status = loginErrorMessage
+	}
+	if(loginProcess) {
+		status = loginProcessMessage
 	}
 
 	return (
 		<form className='login-form' onSubmit={props.loginRequest}>
 			<div className='login-form__input-wrap'>
 				<input
-					type='text'
+					onChange={props.loginFormChange}
+					className={loginClasses}
+					placeholder={loginPH}
+					value={login}
 					name='login'
-					placeholder="Логин"
-					value={props.login}
-					onChange={props.loginFormChanged}
-					className='login-from__username login-form__input'/>
+					type='text'/>
+				{(loginValidationFail) ? <div className='validation__message'>{loginValidationMessage}</div> : ""}
 			</div>
 			<div className='login-form__input-wrap'>
 				<input
+					onChange={props.loginFormChange}
+					className={passwordClasses}
+					placeholder={passwordPH}
+					value={password}
 					type='password'
-					name='password'
-					placeholder="Пароль"
-					value={props.password}
-					onChange={props.loginFormChanged}
-					className='login-form__password login-form__input'/>
+					name='password'/>
+				{(passwordValidationFail) ? <div className='validation__message'>{passwordValidationMessage}</div> : ""}
 			</div>
 			<div className='login-form__submit-wrap'>
-				<button className='submit-button login-form__submit'>Войти</button>
+				<button disabled={validatorError} className='submit-button login-form__submit'>Войти</button>
 				<div className='login-form__status'>{status}</div>
 			</div>
 		</form>
