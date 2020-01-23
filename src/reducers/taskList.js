@@ -15,7 +15,7 @@ import {
 
 import {
 	REMOTE_UPDATE
-} from '../actions/TaskListFormActions'
+} from '../actions/TaskFormActions'
 
 const initialState = {
 	list: null,
