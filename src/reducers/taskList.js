@@ -242,6 +242,10 @@ const taskListReducer = (state = initialState, action) => {
 						...state.editor.messages,
 						savingError: null,
 					},
+					validator: {
+						...state.editor.validator,
+						validationFail: false
+					}
 				}
 			}
 		case TASK_UNSELECTED_TO_EDIT:

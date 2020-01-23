@@ -20,13 +20,34 @@ class UserContainer extends React.Component {
 		this.logout = this.logout.bind(this)
 		this.loginRequest = this.loginRequest.bind(this)
 		this.loginFormChange = this.loginFormChange.bind(this)
+		this.storageLoginHandler = this.storageLoginHandler.bind(this)
+	}
+
+	storageLoginHandler(event){
+		if(event.key == 'login') {
+			if(event.newValue == 'false' || event.newValue == null) {
+				this.props.logout()
+			}
+			if(event.newValue == 'true') {
+				const {token, isAdmin, username} = Cookies.get()
+				if(token != undefined) {
+					this.props.loginSuccess(token, isAdmin, username)
+				}
+			}
+		}
 	}
 
 	componentDidMount(){
+		window.addEventListener('storage', this.storageLoginHandler)
 		const {token, isAdmin, username} = Cookies.get()
 		if(token != undefined) {
+			localStorage.setItem('login', true)
 			this.props.loginSuccess(token, isAdmin, username)
 		}
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener('storage', this.storageLoginHandler)
 	}
 
 	loginFormChange (e) {
@@ -75,6 +96,8 @@ class UserContainer extends React.Component {
 					Cookies.set('isAdmin', isAdmin, { expires: 1 })
 					Cookies.set('username', username, { expires: 1 })
 
+					localStorage.setItem('login', true);
+
 					that.props.loginSuccess(token, isAdmin, username)
 				} else {
 					that.props.loginFailure('server', response.data.message.password)
@@ -90,6 +113,7 @@ class UserContainer extends React.Component {
 		Cookies.remove('token')
 		Cookies.remove('isAdmin')
 		Cookies.remove('username')
+		localStorage.setItem('login', false);
 	}
 
 	render() {
