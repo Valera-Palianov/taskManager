@@ -4,43 +4,21 @@ import "./TaskListStatus.css"
 
 const LoadStatus = (props) => {
 
-	const {updatingError, isListUpdating, updatingErrorMessage} = props.flags
-	const totalTaskCount = props.totalTaskCount
-
-	let icon = 'none'
-	let message
-	let spin = false
-	if(updatingError) {
-
-		icon = "exclamation-triangle"
-		message="Ошибка загрузки, подробности в консоли"
-		console.log(updatingErrorMessage)
-
-	} else {
-
-		if(isListUpdating) {
-
-			spin = true
-			icon = "atom"
-			message="Загрузка..."
-
-		} else {
-
-			if(totalTaskCount == 0) {
-
-				icon = "folder-open"
-				message="Ваш список задач пуст"
-
-			} else {
-
-				icon = "dizzy"
-				message="Неизвестная ошибка, попробуйте еще раз"
-
-			}
-		}
+	let icon
+	switch(props.status) {
+		case "error":
+			icon = <FontAwesomeIcon icon="exclamation-triangle"/>
+			break
+		case "empty":
+			icon = <FontAwesomeIcon icon="folder-open"/>
+			break
+		case "wtf":
+			icon = <FontAwesomeIcon icon="dizzy"/>
+			break
+		default:
+			icon = <FontAwesomeIcon icon="atom" spin={true}/>
 	}
-
-	icon = (icon != "none") ? <FontAwesomeIcon icon={icon} spin={spin}/> : ""
+	let message = (props.message != undefined) ? props.message : ""
 
 	return (
 		<div className='tasklist-status'>

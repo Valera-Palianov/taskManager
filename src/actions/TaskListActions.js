@@ -13,6 +13,8 @@ export const EDITABLE_TASK_SAVE_SUCCESS = 'EDITABLE_TASK_SAVE_SUCCESS'
 export const EDITABLE_TASK_SAVE_FAILURE = 'EDITABLE_TASK_SAVE_FAILURE'
 export const EDITABLE_TASK_CHANGE = 'EDITABLE_TASK_CHANGE'
 
+export const HIDE_EDITOR_OVERLAY = "HIDE_EDITOR_OVERLAY"
+
 export const updateTaskListRequest = () => {
 	return {
 		type: UPDATE_TASK_LIST_REQUEST
@@ -29,10 +31,13 @@ export const updateTaskListSuccess = (list, totalTaskCount) => {
 	}
 }
 
-export const updateTaskListFailure = (errorMessage) => {
+export const updateTaskListFailure = (errorType, errorMessage) => {
 	return {
 		type: UPDATE_TASK_LIST_FAILURE,
-		payload: errorMessage
+		payload: {
+			errorType: errorType,
+			errorMessage: errorMessage
+		}
 	}
 }
 
@@ -82,19 +87,29 @@ export const editableTaskSaveSuccess = () => {
 	}
 }
 
-export const editableTaskSaveFailure = (errorMessage) => {
+export const editableTaskSaveFailure = (errorType, errorMessage) => {
 	return {
 		type: EDITABLE_TASK_SAVE_FAILURE,
-		payload: errorMessage
+		payload: {
+			errorMessage: errorMessage,
+			errorType: errorType
+		}
 	}
 }
 
-export const editableTaskChange = (name, value) => {
+export const editableTaskChange = (name, value, validationFail) => {
 	return {
 		type: EDITABLE_TASK_CHANGE,
 		payload: {
 			name: name,
-			value: value
+			value: value,
+			validationFail: validationFail
 		}
+	}
+}
+
+export const hideEditorOverlay = () => {
+	return {
+		type: HIDE_EDITOR_OVERLAY
 	}
 }

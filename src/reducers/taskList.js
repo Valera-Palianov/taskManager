@@ -10,7 +10,8 @@ import {
 	EDITABLE_TASK_CHANGE,
 	EDITABLE_TASK_SAVE_REQUEST,
 	EDITABLE_TASK_SAVE_SUCCESS,
-	EDITABLE_TASK_SAVE_FAILURE
+	EDITABLE_TASK_SAVE_FAILURE,
+	HIDE_EDITOR_OVERLAY,
 } from '../actions/TaskListActions'
 
 import {
@@ -48,25 +49,49 @@ const initialState = {
 				name: "Восходящая"
 			},
 		],
-		activeSortField: "id",
-		activeSortDirection: "asc",
-		pageNumber: 1,
-		itemsPerPage: 3,
-		totalTaskCount: 0,
+		current: {
+			activeSortField: "id",
+			activeSortDirection: "asc",
+			pageNumber: 1,
+			itemsPerPage: 3,
+			totalTaskCount: 0,
+		}
 	},
 	flags: {
-		updatingErrorMessage: null,
-		listNeedToUpdate: false,
-		isListUpdating: false,
+		updatingProcess: true,
 		updatingError: false,
+		networkError: false,
+		listNeedToUpdate: false,
 	},
-	editableTask: {
-		id: null,
-		text: null,
-		status: null,
-		isSaving: false,
-		savingError: false,
-		savingErrorMessage: null
+	messages: {
+		updatingProcess: "Загрузка...",
+		updatingError: null,
+		networkError: "Ошибка сети",
+		emptyList: "Список задач пуст"
+	},
+	editor: {
+		task: {
+			id: null,
+			text: null,
+			status: null,
+		},
+		flags: {
+			savingProcess: false,
+			savingError: false,
+			networkError: false,
+			showOverlay: false
+		},
+		messages: {
+			savingProcess: "Сохранение...",
+			savingError: null,
+			networkError: "Ошибка сети"
+		},
+		validator: {
+			validationFail: false,	
+			regEx: /^(.+)$/i,
+			validationMessage: "Задача не может быть пустой"
+		}
+		
 	}
 }
 
@@ -77,10 +102,14 @@ const taskListReducer = (state = initialState, action) => {
 				...state,
 				flags: {
 					...state.flags,
-					isListUpdating: true,
+					updatingProcess: true,
 					updatingError: false,
-					updatingErrorMessage: null,
+					networkError: false,
 					listNeedToUpdate: false
+				},
+				messages: {
+					...state.messages,
+					updatingError: null
 				}
 			}
 		case UPDATE_TASK_LIST_SUCCESS: 
@@ -89,38 +118,60 @@ const taskListReducer = (state = initialState, action) => {
 				list: action.payload.list,
 				options: {
 					...state.options,
-					totalTaskCount: action.payload.totalTaskCount,
+					current: {
+						...state.options.current,
+						totalTaskCount: action.payload.totalTaskCount,
+					}
 				},
 				flags: {
 					...state.flags,
-					isListUpdating: false,
+					updatingProcess: false,
 					updatingError: false,
-					updatingErrorMessage: null,
+					networkError: false,
 					listNeedToUpdate: false
+				},
+				messages: {
+					...state.messages,
+					updatingError: null
 				}
 			}
 		case UPDATE_TASK_LIST_FAILURE: 
-			return {
+			let updateTaskListFailureState = {
 				...state,
 				list: null,
 				options: {
 					...state.options,
-					totalTaskCount: 0,
+					current: {
+						...state.options.current,
+						totalTaskCount: 0,
+					}
 				},
 				flags: {
 					...state.flags,
-					isListUpdating: false,
-					updatingError: true,
-					updatingErrorMessage: action.payload,
-					listNeedToUpdate: false
+					updatingProcess: false
+				},
+				messages: {
+					...state.messages,
 				}
 			}
+			switch(action.payload.errorType) {
+				case "server":
+					updateTaskListFailureState.flags.updatingError = true
+					updateTaskListFailureState.messages.updatingError = action.payload.errorMessage
+					break
+				case "network":
+					updateTaskListFailureState.flags.networkError = true
+			}
+			return updateTaskListFailureState
 		case PAGE_NUMBER_CHANGE:
 			return {
 				...state,
 				options: {
 					...state.options,
-					pageNumber: action.payload,
+					current: {
+						...state.options.current,
+						pageNumber: action.payload,
+					}
 				},
 				flags: {
 					...state.flags,
@@ -132,7 +183,10 @@ const taskListReducer = (state = initialState, action) => {
 				...state,
 				options: {
 					...state.options,
-					activeSortField: action.payload
+					current: {
+						...state.options.current,
+						activeSortField: action.payload
+					},
 				},
 				flags: {
 					...state.flags,
@@ -144,7 +198,10 @@ const taskListReducer = (state = initialState, action) => {
 				...state,
 				options: {
 					...state.options,
-					activeSortDirection: action.payload
+					current: {
+						...state.options.current,
+						activeSortDirection: action.payload
+					}
 				},
 				flags: {
 					...state.flags,
@@ -168,82 +225,163 @@ const taskListReducer = (state = initialState, action) => {
 			})
 			return {
 				...state,
-				editableTask: {
-					id: editableTask.id,
-					text: editableTask.text,
-					status: editableTask.status,
-					isSaving: false,
-					savingError: false,
-					savingErrorMessage: null
+				editor: {
+					...state.editor,
+					task: {
+						id: editableTask.id,
+						text: editableTask.text,
+						status: editableTask.status,
+					},
+					flags: {
+						savingProcess: false,
+						savingError: false,
+						networkError: false,
+						showOverlay: false
+					},
+					messages: {
+						...state.editor.messages,
+						savingError: null,
+					},
 				}
 			}
 		case TASK_UNSELECTED_TO_EDIT:
 			return {
 				...state,
-				editableTask: {
-					id: null,
-					text: null,
-					status: null,
-					isSaving: false,
-					savingError: false,
-					savingErrorMessage: null
+				editor: {
+					...state.editor,
+					task: {
+						id: null,
+						text: null,
+						status: null,
+					},
+					flags: {
+						savingProcess: false,
+						savingError: false,
+						networkError: false,
+						showOverlay: false
+					},
+					messages: {
+						...state.editor.messages,
+						savingError: null,
+					},
+					validator: {
+						...state.editor.validator,
+						validationFail: false,	
+					}
 				}
 			}
 		case EDITABLE_TASK_CHANGE:
-			let newState = {
+			let editableTaskChangeState = {
 				...state,
-				editableTask: {
-					...state.editableTask
+				editor: {
+					...state.editor,
+					task: {
+						...state.editor.task
+					}
 				}
 			}
 			switch(action.payload.name) {
 				case "text":
-					newState.editableTask.text = action.payload.value
+					editableTaskChangeState.editor.task.text = action.payload.value
+					editableTaskChangeState.editor.validator.validationFail = action.payload.validationFail
 					break
 				case "status":
-					newState.editableTask.status = action.payload.value
+					editableTaskChangeState.editor.task.status = action.payload.value
 					break
 			}
-			return newState
+			return editableTaskChangeState
 		case EDITABLE_TASK_SAVE_REQUEST: 
 			return {
 				...state,
-				editableTask: {
-					...state.editableTask,
-					isSaving: true
+				editor: {
+					...state.editor,
+					flags: {
+						savingProcess: true,
+						savingError: false,
+						networkError: false,
+						showOverlay: true
+					},
+					messages: {
+						...state.editor.messages,
+						savingError: null,
+					},
 				}
 			}
 		case EDITABLE_TASK_SAVE_SUCCESS:
-			let newStateSuccess = {
+			let editableTaskSaveSuccessState = {
 				...state,
 				list: [...state.list],
-				editableTask: {
-					id: null,
-					text: null,
-					status: null,
-					isSaving: false,
-					savingError: false,
-					savingErrorMessage: null
+				editor: {
+					task: {
+						id: null,
+						text: null,
+						status: null,
+					},
+					flags: {
+						savingProcess: false,
+						savingError: false,
+						networkError: false,
+						showOverlay: false
+					},
+					messages: {
+						...state.editor.messages,
+						savingError: null,
+					},
+					validator: {
+						...state.editor.validator,
+						validationFail: false,	
+					}
 				}
 			}
 			state.list.forEach(function(item, i) {
-				if(item.id == state.editableTask.id) {
-					newStateSuccess.list[i] = {
+				if(item.id == state.editor.task.id) {
+					editableTaskSaveSuccessState.list[i] = {
 						...state.list[i],
-						text: state.editableTask.text,
-						status: state.editableTask.status,
+						text: state.editor.task.text,
+						status: state.editor.task.status,
 					}
 				}
 			})
-			return newStateSuccess
-		case EDITABLE_TASK_SAVE_FAILURE: 
+			return editableTaskSaveSuccessState
+		case EDITABLE_TASK_SAVE_FAILURE:
+			let editableTaskSaveSuccesState = {
+				...state,
+				editor: {
+					...state.editor,
+					flags: {
+						...state.editor.flags,
+						savingProcess: false,
+						showOverlay: true
+					},
+					messages: {
+						...state.editor.messages,
+					},
+				}
+			}
+			switch(action.payload.errorType) {
+				case "server":
+					editableTaskSaveSuccesState.editor.flags.savingError = true
+					editableTaskSaveSuccesState.editor.messages.savingError = action.payload.errorMessage
+					break
+				case "network":
+					editableTaskSaveSuccesState.editor.flags.networkError = true
+			}
+			return editableTaskSaveSuccesState
+		case HIDE_EDITOR_OVERLAY:
 			return {
 				...state,
-				editableTask: {
-					...state.editableTask,
-					isSaving: false,
-					savingError: true,
-					savingErrorMessage: action.payload
+				editor: {
+					...state.editor,
+					flags: {
+						savingProcess: false,
+						savingError: false,
+						networkError: false,
+						showOverlay: false
+					},
+					messages: {
+						...state.editor.messages,
+						savingError: null,
+					}
 				}
 			}
 		default:

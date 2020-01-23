@@ -4,9 +4,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import TaskOverlay from '../TaskOverlay/TaskOverlay'
 
-const Task = (props) => {
+const TaskEditor = (props) => {
 
-	const {isSaving, status, text, savingError, savingErrorMessage} = props.editableTask
+	const {savingProcess, savingError, networkError, showOverlay} = props.editor.flags
+	const {status, text, id} = props.editor.task
+	const {username, email} = props.task
+	const {validationFail, validationMessage} = props.editor.validator
+
+	const {
+		savingProcess: savingProcessMessage,
+		savingError: savingErrorMessage,
+		networkError: networkErrorMessage
+	} = props.editor.messages
 
 	let classes = 'card task task-editor'
 	let icon = 'check-circle'
@@ -15,29 +24,49 @@ const Task = (props) => {
 		icon = "circle"
 	}
 
-	let overlay = <TaskOverlay />
-	overlay = (isSaving) ? overlay : null
+	let textareaClasses = 'task__text task-editor__text'
+	textareaClasses += (validationFail) ? " validation-error" : ""
 
-	let error
-	if(savingError) {
-		console.log(savingErrorMessage)
-		error = "Ошибка сохранения. Подробности в консоли"
+	let overlay
+	if(showOverlay) {
+		let status
+		let message
+
+		if(networkError) {
+			status = "error"
+			message = networkErrorMessage
+		}
+		if(savingError) {
+			status = "error"
+			message = savingErrorMessage
+			console.log(message)
+			message = "Неверные данные. Подробности в консоли"
+		}
+		if(savingProcess) {
+			status = "process"
+			message = savingProcessMessage
+		}
+
+		overlay = <TaskOverlay status={status} message={message} />
 	}
 
 	return (
-		<div className={classes} key={props.id}>
+		<div className={classes} key={props.task.id}>
 			{overlay}
 			<div className='card__wrap'>
 				<div className='task__creator'>
-					<div className='task__username'>{props.username}</div>
-					<div className='task__email'>{props.email}</div>
+					<div className='task__username'>{username}</div>
+					<div className='task__email'>{email}</div>
 				</div>
-				<textarea
-					onChange={(e) => {props.editableTaskChange('text', e.target.value)}}
-					className='task__text task-editor__text'
-					value={text}/>
+				<div>
+					<textarea
+						onChange={(e) => {props.editableTaskChange('text', e.target.value)}}
+						className={textareaClasses}
+						value={text}/>
+					{(validationFail) ? <div className='validation__message'>{validationMessage}</div> : ""}
+				</div>
 				<div className='task__status-wrap'>
-					<div className='task__error'>{error}</div>
+					<div className='task__error'></div>
 					<div
 						onClick={() => {props.editableTaskChange('status', (status == 0) ? 10 : 0)}}
 						className='task__status'>
@@ -47,10 +76,10 @@ const Task = (props) => {
 			</div>
 			<div className='task__buttons-holder'>
 				<FontAwesomeIcon onClick={props.taskUnselectedToEdit} className='task__button' icon="ban"/>
-				<FontAwesomeIcon onClick={props.editableTaskSaveRequest} className='task__button' icon="save"/>
+				<FontAwesomeIcon onClick={(!validationFail) ? props.editableTaskSaveRequest : () => {return false}} className='task__button' icon="save"/>
 			</div>
 		</div>
 	)
 }
 
-export default Task
+export default TaskEditor

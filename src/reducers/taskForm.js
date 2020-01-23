@@ -87,6 +87,9 @@ const taskFormReducer = (state = initialState, action) => {
 				flags: {
 					...state.flags,
 					sendingProcess: false,
+				},
+				messages: {
+					...state.messages
 				}
 			}
 			switch(action.payload.errorType) {

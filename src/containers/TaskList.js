@@ -16,6 +16,7 @@ import {
 	sortDirectionChange,
 	editableTaskChange,
 	taskSelectedToEdit,
+	hideEditorOverlay,
 	pageNumberChange,
 	sortFieldChange,
 } from '../actions/TaskListActions'
@@ -26,6 +27,7 @@ class TaskListContainer extends React.Component {
 		super(props)
 		this.listUpdate = this.listUpdate.bind(this)
 		this.editableTaskSaveRequest = this.editableTaskSaveRequest.bind(this)
+		this.editableTaskChange = this.editableTaskChange.bind(this)
 	}
 
 	componentDidMount(){
@@ -41,7 +43,7 @@ class TaskListContainer extends React.Component {
 	listUpdate() {
 		this.props.updateTaskListRequest()
 
-		const {activeSortField, activeSortDirection, pageNumber} = this.props.options
+		const {activeSortField, activeSortDirection, pageNumber} = this.props.options.current
 
 		const requestBase = ajaxData.baseURL
 		const requestDeveloper = "/?developer="+ajaxData.developerName
@@ -62,30 +64,30 @@ class TaskListContainer extends React.Component {
 
 					that.props.updateTaskListSuccess(list, totalTaskCount)
 				} else {
+					console.log('server')
 					const errorMessage = response.data.message
-
-					that.props.updateTaskListFailure(errorMessage)
+					that.props.updateTaskListFailure('server', errorMessage)
 				}
 			})
 			.catch(function (error) {
+				console.log('network')
 				const errorMessage = error
-
-				that.props.updateTaskListFailure(errorMessage)
+				that.props.updateTaskListFailure('network', errorMessage)
 			})
 	}
 
 	editableTaskSaveRequest() {	
 
-		const formData = new FormData()
-        formData.append("text", this.props.editableTask.text)
-        formData.append("status", this.props.editableTask.status)
-        formData.append("token", Cookies.get('token'))
-
 		this.props.editableTaskSaveRequest()
+
+		const formData = new FormData()
+        formData.append("text", this.props.editor.task.text)
+        formData.append("status", this.props.editor.task.status)
+        formData.append("token", Cookies.get('token'))
 
 		const requestBase = ajaxData.baseURL
 		const requestTarget = ajaxData.toEdit
-		const requestTargetId = "/"+this.props.editableTask.id
+		const requestTargetId = "/"+this.props.editor.task.id
 		const requestDeveloper = "?developer="+ajaxData.developerName
 
 		const requestURL = requestBase+requestTarget+requestTargetId+requestDeveloper
@@ -97,28 +99,46 @@ class TaskListContainer extends React.Component {
 				if(response.data.status == 'ok') {
 					that.props.editableTaskSaveSuccess()
 				} else {
-					that.props.editableTaskSaveFailure(response.data.message)
+					that.props.editableTaskSaveFailure('server', response.data.message)
+					setTimeout(()=> {
+						that.props.hideEditorOverlay()	
+					}, 2500)
 				}
 			})
 			.catch(function (error) {
-				that.props.editableTaskSaveFailure(error)
+				that.props.editableTaskSaveFailure('network', error)
+				setTimeout(()=> {
+					that.props.hideEditorOverlay()	
+				}, 2500)
 			})
+	}
+
+	editableTaskChange(name, value) {
+
+		let validationFail = false
+		if(name == 'text') {
+			const textRe = this.props.editor.validator.regEx
+			validationFail = !textRe.test(value)
+		}
+
+		this.props.editableTaskChange(name, value, validationFail)
 	}
 
 	render() {
 		return <TaskList
+				editableTaskChange={this.editableTaskChange}
 				sortFieldChange={this.props.sortFieldChange}
 				pageNumberChange={this.props.pageNumberChange}
 				addTaskFormChange={this.props.addTaskFormChange}
 				taskSelectedToEdit={this.props.taskSelectedToEdit}
-				editableTaskChange={this.props.editableTaskChange}
 				sortDirectionChange={this.props.sortDirectionChange}
 				taskUnselectedToEdit={this.props.taskUnselectedToEdit}
 				editableTaskSaveRequest={this.editableTaskSaveRequest}
 				list={this.props.list}
 				flags={this.props.flags}
+				editor={this.props.editor}
 				options={this.props.options}
-				editableTask={this.props.editableTask}
+				messages={this.props.messages}
 				editorEnabled={this.props.editorEnabled}/>
 		
 	}
@@ -126,21 +146,18 @@ class TaskListContainer extends React.Component {
 
 const mapStateToProps = (state) => {
 	return {
-		list: state.taskList.list,
-		flags: state.taskList.flags,
-		options: state.taskList.options,
-		editableTask: state.taskList.editableTask,
+		...state.taskList,
 		editorEnabled: state.user.general.isAdmin,
 	}
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
+		editableTaskSaveFailure: (errorType, errorMessage) => dispatch(editableTaskSaveFailure(errorType, errorMessage)),
+		editableTaskChange: (name, value, validationFail) => dispatch(editableTaskChange(name, value, validationFail)),
+		updateTaskListFailure: (errorType, errorMessage) => dispatch(updateTaskListFailure(errorType, errorMessage)),
 		updateTaskListSuccess: (list, totalTaskCount) => dispatch(updateTaskListSuccess(list, totalTaskCount)),
-		editableTaskSaveFailure: (errorMessage) => dispatch(editableTaskSaveFailure(errorMessage)),
-		updateTaskListFailure: (errorMessage) => dispatch(updateTaskListFailure(errorMessage)),
 		sortDirectionChange: (sortDirection) => dispatch(sortDirectionChange(sortDirection)),
-		editableTaskChange: (name, value) => dispatch(editableTaskChange(name, value)),
 		pageNumberChange: (pageNumber) => dispatch(pageNumberChange(pageNumber)),
 		sortFieldChange: (sortField) => dispatch(sortFieldChange(sortField)),
 		editableTaskSaveRequest: () => dispatch(editableTaskSaveRequest()),
@@ -148,6 +165,7 @@ const mapDispatchToProps = (dispatch) => {
 		updateTaskListRequest: () => dispatch(updateTaskListRequest()),
 		taskSelectedToEdit: (id) => dispatch(taskSelectedToEdit(id)),
 		taskUnselectedToEdit: () => dispatch(taskUnselectedToEdit()),
+		hideEditorOverlay: () => dispatch(hideEditorOverlay()),
 	}
 }
 
