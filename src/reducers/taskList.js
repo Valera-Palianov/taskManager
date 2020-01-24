@@ -88,7 +88,7 @@ const initialState = {
 		},
 		validator: {
 			validationFail: false,	
-			regEx: /^(.+)$/i,
+			regEx: /^(.)+$/mi,
 			validationMessage: "Задача не может быть пустой"
 		}
 		

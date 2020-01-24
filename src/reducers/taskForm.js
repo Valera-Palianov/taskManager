@@ -31,7 +31,7 @@ const initialState = {
 			},
 			text: {
 				validationFail: false,
-				regEx: /^(.+)$/i,
+				regEx: /^(.)+$/mi,
 				message: "Задача не может быть пустой"
 			}
 		}

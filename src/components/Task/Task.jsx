@@ -1,6 +1,7 @@
 import React from 'react'
 import './Task.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import HTMLDecoderEncoder from "html-encoder-decoder"
 
 const Task = (props) => {
 
@@ -24,7 +25,7 @@ const Task = (props) => {
 					<div className='task__username'>{props.task.username}</div>
 					<div className='task__email'>{props.task.email}</div>
 				</div>
-				<div className='task__text'>{props.text}</div>
+				<div className='task__text'>{HTMLDecoderEncoder.decode(props.text)}</div>
 				<div className='task__status-wrap'>
 					<div className='task__error'></div>
 					<div className='task__status'>

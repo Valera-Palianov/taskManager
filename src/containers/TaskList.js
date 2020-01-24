@@ -21,6 +21,8 @@ import {
 	sortFieldChange,
 } from '../actions/TaskListActions'
 
+import HTMLDecoderEncoder from "html-encoder-decoder"
+
 class TaskListContainer extends React.Component {
 
 	constructor(props) {
@@ -61,16 +63,13 @@ class TaskListContainer extends React.Component {
 
 					const list = response.data.message.tasks
 					const totalTaskCount = parseInt(response.data.message.total_task_count)
-
 					that.props.updateTaskListSuccess(list, totalTaskCount)
 				} else {
-					console.log('server')
 					const errorMessage = response.data.message
 					that.props.updateTaskListFailure('server', errorMessage)
 				}
 			})
 			.catch(function (error) {
-				console.log('network')
 				const errorMessage = error
 				that.props.updateTaskListFailure('network', errorMessage)
 			})
@@ -81,7 +80,7 @@ class TaskListContainer extends React.Component {
 		this.props.editableTaskSaveRequest()
 
 		const formData = new FormData()
-        formData.append("text", this.props.editor.task.text)
+        formData.append("text", HTMLDecoderEncoder.decode(this.props.editor.task.text))
         formData.append("status", this.props.editor.task.status)
         formData.append("token", Cookies.get('token'))
 
@@ -93,7 +92,7 @@ class TaskListContainer extends React.Component {
 		const requestURL = requestBase+requestTarget+requestTargetId+requestDeveloper
 
 		const that = this
-
+		
 		axios.post(requestURL, formData)
 			.then(function (response) {
 				if(response.data.status == 'ok') {
@@ -111,17 +110,19 @@ class TaskListContainer extends React.Component {
 					that.props.hideEditorOverlay()	
 				}, 2500)
 			})
+		
 	}
 
 	editableTaskChange(name, value) {
-
+		let currentValue = value
 		let validationFail = false
 		if(name == 'text') {
 			const textRe = this.props.editor.validator.regEx
-			validationFail = !textRe.test(value)
+			validationFail = !textRe.test(currentValue)
+			currentValue = HTMLDecoderEncoder.encode(currentValue)
 		}
 
-		this.props.editableTaskChange(name, value, validationFail)
+		this.props.editableTaskChange(name, currentValue, validationFail)
 	}
 
 	render() {

@@ -1,6 +1,7 @@
 import React from 'react'
 import './TaskEditor.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import HTMLDecoderEncoder from "html-encoder-decoder"
 
 import TaskOverlay from '../TaskOverlay/TaskOverlay'
 
@@ -62,7 +63,7 @@ const TaskEditor = (props) => {
 					<textarea
 						onChange={(e) => {props.editableTaskChange('text', e.target.value)}}
 						className={textareaClasses}
-						value={text}/>
+						value={HTMLDecoderEncoder.decode(text)}/>
 					{(validationFail) ? <div className='validation__message'>{validationMessage}</div> : ""}
 				</div>
 				<div className='task__status-wrap'>

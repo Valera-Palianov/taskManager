@@ -3,6 +3,7 @@ import './TaskForm.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import TaskOverlay from '../TaskOverlay/TaskOverlay'
+import HTMLDecoderEncoder from "html-encoder-decoder"
 
 const TaskForm = (props) => {
 
@@ -106,7 +107,7 @@ const TaskForm = (props) => {
 						<div className='task-form__textarea-wrap'>
 							<div>
 								<textarea
-									value={text}
+									value={HTMLDecoderEncoder.decode(text)}
 									placeholder={textPH}
 									onChange={props.taskFormChange}
 									className={textClasses}

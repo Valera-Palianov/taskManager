@@ -12,6 +12,7 @@ import {
 	hideOverlay,
 	remoteUpdate
 } from '../actions/TaskFormActions'
+import HTMLDecoderEncoder from "html-encoder-decoder"
 
 class TaskFormContainer extends React.Component {
 
@@ -29,7 +30,7 @@ class TaskFormContainer extends React.Component {
 		const formData = new FormData()
         formData.append("username", this.props.form.values.username)
         formData.append("email", this.props.form.values.email)
-        formData.append("text", this.props.form.values.text)
+        formData.append("text", HTMLDecoderEncoder.decode(this.props.form.values.text))
 
 		const requestBase = ajaxData.baseURL
 		const requestTarget = ajaxData.toCreate
@@ -65,7 +66,7 @@ class TaskFormContainer extends React.Component {
 	}
 
 	taskFormChange(e) {
-		const value = e.target.value
+		let value = e.target.value
 		const name = e.target.name
 
 		let validationFail = false
@@ -80,6 +81,7 @@ class TaskFormContainer extends React.Component {
 		if(name == 'text') {
 			const usernameRe = this.props.form.validators.text.regEx
 			validationFail = !usernameRe.test(value)
+			value = HTMLDecoderEncoder.encode(value)
 		}
 
 		this.props.taskFormChange(name, value, validationFail)
