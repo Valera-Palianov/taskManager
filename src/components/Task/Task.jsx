@@ -27,7 +27,7 @@ const Task = (props) => {
 				</div>
 				<div className='task__text'>{HTMLDecoderEncoder.decode(props.text)}</div>
 				<div className='task__status-wrap'>
-					<div className='task__error'></div>
+					<div className='task__error'>{(props.task.hasBeenChanged) ? "Отредактированно администратором" : ""}</div>
 					<div className='task__status'>
 						<FontAwesomeIcon icon={['far', icon]}/>
 					</div>

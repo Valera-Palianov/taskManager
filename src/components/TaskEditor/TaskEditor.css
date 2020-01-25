@@ -2,6 +2,7 @@
 	width: 100%;
 	box-sizing: border-box;
 	resize: vertical;
+	height: 100px;
 }
 
 .task-editor .task__status {

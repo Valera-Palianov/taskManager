@@ -1,4 +1,5 @@
 import React from 'react'
+import Cookies from 'js-cookie'
 
 import Task from '../Task/Task'
 import TaskEditor from '../TaskEditor/TaskEditor'
@@ -51,10 +52,17 @@ const TaskList = (props) => {
 	} else {
 
 		const listJSX = list.map(t => {
+
+			let hasBeenChanged = false
+			if(Cookies.get('tthbc'+t.id) != undefined) {
+				hasBeenChanged = true
+			}
+
 			const task = {
 				username: t.username,
 				email: t.email,
 				id: t.id,
+				hasBeenChanged: hasBeenChanged
 			}
 			if(t.id == props.editor.task.id && props.editorEnabled) {
 				return (

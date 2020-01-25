@@ -84,6 +84,18 @@ class TaskListContainer extends React.Component {
         formData.append("status", this.props.editor.task.status)
         formData.append("token", Cookies.get('token'))
 
+        let taskTextHasBeenChanged = false
+        let taskArrayPosition
+        let taskToFind = this.props.editor.task.id
+        this.props.list.forEach(function(item, i) {
+			if(taskToFind == item.id) {
+				taskArrayPosition = i
+			}
+		})
+        if(this.props.editor.task.text != this.props.list[taskArrayPosition].text) {
+        	taskTextHasBeenChanged = true
+        }
+
 		const requestBase = ajaxData.baseURL
 		const requestTarget = ajaxData.toEdit
 		const requestTargetId = "/"+this.props.editor.task.id
@@ -96,6 +108,10 @@ class TaskListContainer extends React.Component {
 		axios.post(requestURL, formData)
 			.then(function (response) {
 				if(response.data.status == 'ok') {
+					if(taskTextHasBeenChanged) {
+						console.log('cookie set')
+						Cookies.set('tthbc'+that.props.editor.task.id, true, { expires: 1 })
+					}
 					that.props.editableTaskSaveSuccess()
 				} else {
 					that.props.editableTaskSaveFailure('server', response.data.message)
