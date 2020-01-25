@@ -32,10 +32,13 @@ class TaskListContainer extends React.Component {
 		this.editableTaskChange = this.editableTaskChange.bind(this)
 	}
 
+	//Обновление листа сразу после подключения компонента
 	componentDidMount(){
 		this.listUpdate()
 	}
 
+	//После каждой перерисовки компонента список задач обновляется, если есть в этом необходимость.
+	//Необходимость появляется при переключении сортировки или страницы
 	componentDidUpdate() {
 		if(this.props.flags.listNeedToUpdate){
 			this.listUpdate()
@@ -79,11 +82,15 @@ class TaskListContainer extends React.Component {
 
 		this.props.editableTaskSaveRequest()
 
+		//Текст задачи декодируется перед отправкой на сервер, чтобы не произошло двойной кодировки, так как сервер ее тоже проводит
+		//Токен запрашивается из куки, а не из хранилища,
+		//дабы не произошло ситуации, когда из одной вкладки пользователь вышел, а во второй продолжает редактирование
 		const formData = new FormData()
         formData.append("text", HTMLDecoderEncoder.decode(this.props.editor.task.text))
         formData.append("status", this.props.editor.task.status)
         formData.append("token", Cookies.get('token'))
 
+        //Здесь текст задачи сверяется с текстом, отправленным из редактора, чтобы понять, был ли он изменен.
         let taskTextHasBeenChanged = false
         let taskArrayPosition
         let taskToFind = this.props.editor.task.id
@@ -108,8 +115,8 @@ class TaskListContainer extends React.Component {
 		axios.post(requestURL, formData)
 			.then(function (response) {
 				if(response.data.status == 'ok') {
+					//Если текст был изменен, создается специальная куки, нужная для отметки об редактировании администратором
 					if(taskTextHasBeenChanged) {
-						console.log('cookie set')
 						Cookies.set('tthbc'+that.props.editor.task.id, true, { expires: 1 })
 					}
 					that.props.editableTaskSaveSuccess()
@@ -135,6 +142,7 @@ class TaskListContainer extends React.Component {
 		if(name == 'text') {
 			const textRe = this.props.editor.validator.regEx
 			validationFail = !textRe.test(currentValue)
+			//Перед помещением в общий state, спецсимволы, на всякий случай, кодируются
 			currentValue = HTMLDecoderEncoder.encode(currentValue)
 		}
 
@@ -161,6 +169,8 @@ class TaskListContainer extends React.Component {
 	}
 }
 
+//Контейнер забирает свой собственный state, однако запрашивает так же и статус текущего пользователя.
+//При авторизации или выходе, список задач будет перерисовываться из-за смены состояния, это позволит включать и отключать редактор задач
 const mapStateToProps = (state) => {
 	return {
 		...state.taskList,

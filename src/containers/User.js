@@ -23,6 +23,7 @@ class UserContainer extends React.Component {
 		this.storageLoginHandler = this.storageLoginHandler.bind(this)
 	}
 
+	//Функция срабатывает по событию изменения локального хранилища Storage, на случай если кто-то разлогинился или залогинился в приложении с другой вкладки
 	storageLoginHandler(event){
 		if(event.key == 'login') {
 			if(event.newValue == 'false' || event.newValue == null) {
@@ -37,6 +38,7 @@ class UserContainer extends React.Component {
 		}
 	}
 
+	//При подключении компонента к DOM, вешается слушатель на событие storage, а так же проверяются Cookie, на случай если пользователь уже авторизован
 	componentDidMount(){
 		window.addEventListener('storage', this.storageLoginHandler)
 		const {token, isAdmin, username} = Cookies.get()
@@ -46,10 +48,12 @@ class UserContainer extends React.Component {
 		}
 	}
 
+	//Удаляется слушатель при удалении компонента
 	componentWillUnmount() {
 		window.removeEventListener('storage', this.storageLoginHandler)
 	}
 
+	//Вызывается при любом изменении формы авторизации
 	loginFormChange (e) {
 		const value = e.target.value
 		const name = e.target.name
@@ -67,6 +71,7 @@ class UserContainer extends React.Component {
 		this.props.loginFormChange(name, value, validationFail)
 	}
 
+	//Вызывается при отправке формы авторизации
 	loginRequest(e) {
 
 		e.preventDefault() 
@@ -96,6 +101,7 @@ class UserContainer extends React.Component {
 					Cookies.set('isAdmin', isAdmin, { expires: 1 })
 					Cookies.set('username', username, { expires: 1 })
 
+					//Изменяется локальное хранилище, чтобы другие вкладки с приложением смогли отреагировать на авторизацию
 					localStorage.setItem('login', true);
 
 					that.props.loginSuccess(token, isAdmin, username)
@@ -113,6 +119,8 @@ class UserContainer extends React.Component {
 		Cookies.remove('token')
 		Cookies.remove('isAdmin')
 		Cookies.remove('username')
+
+		//Изменяется локальное хранилище, чтобы другие вкладки с приложением смогли отреагировать на выход из аккаунта
 		localStorage.setItem('login', false);
 	}
 

@@ -53,6 +53,7 @@ const TaskList = (props) => {
 
 		const listJSX = list.map(t => {
 
+			//Id каждой задачи ищется в cookies, чтобы обнаружить отметку об редактировании администратором.
 			let hasBeenChanged = false
 			if(Cookies.get('tthbc'+t.id) != undefined) {
 				hasBeenChanged = true

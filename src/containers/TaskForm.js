@@ -27,6 +27,7 @@ class TaskFormContainer extends React.Component {
 		e.preventDefault()
 		this.props.addTaskRequest()
 
+		//Текст задачи декодируется перед отправкой на сервер, чтобы не произошло двойной кодировки, так как сервер ее тоже проводит
 		const formData = new FormData()
         formData.append("username", this.props.form.values.username)
         formData.append("email", this.props.form.values.email)
@@ -43,7 +44,10 @@ class TaskFormContainer extends React.Component {
 		axios.post(requestURL, formData)
 			.then(function (response) {
 				if(response.data.status == 'ok') {
+
 					that.props.addTaskSuccess()
+
+					//RemoteUpdate это action формы, однако обращается от к редьюсеру списка задач, чтобы иметь возможность запрашивать обновление списка
 					that.props.remoteUpdate()
 
 					setTimeout(()=> {
@@ -78,6 +82,7 @@ class TaskFormContainer extends React.Component {
 			const emailRe = this.props.form.validators.email.regEx
 			validationFail = !emailRe.test(value)
 		}
+		//Для хранение в state, спецсимволы декодируются на всякий случай.
 		if(name == 'text') {
 			const usernameRe = this.props.form.validators.text.regEx
 			validationFail = !usernameRe.test(value)

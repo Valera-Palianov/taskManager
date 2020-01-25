@@ -47,6 +47,7 @@ export const hideOverlay = () => {
 	}
 }
 
+//Remote Update обращается не к редьюсеру Формы, как все остальные, а к редьюсеру Списка.
 export const remoteUpdate = () => {
 	return {
 		type: REMOTE_UPDATE
