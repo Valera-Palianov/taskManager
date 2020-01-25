@@ -6,6 +6,7 @@
     "start": "set APP_MODE=dev&& webpack-dev-server",
     "build": "set APP_MODE=build&& webpack"
   },
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.7.7",
     "@babel/polyfill": "^7.7.0",
